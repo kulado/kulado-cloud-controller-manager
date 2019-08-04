@@ -1,0 +1,33 @@
+package client
+
+type KuladoClient struct {
+    KuladoBaseClient
+	{{range .schemas}}
+    {{.Id}} {{.Id}}Operations{{end}}
+}
+
+func constructClient(kuladoBaseClient *KuladoBaseClientImpl) *KuladoClient {
+	client := &KuladoClient{
+        KuladoBaseClient: kuladoBaseClient,
+    }
+
+    {{range .schemas}}
+    client.{{.Id}} = new{{.Id}}Client(client){{end}}
+
+
+	return client
+}
+
+func NewKuladoClient(opts *ClientOpts) (*KuladoClient, error) {
+    kuladoBaseClient := &KuladoBaseClientImpl {
+        Types: map[string]Schema{},
+    }
+    client := constructClient(kuladoBaseClient)
+
+    err := setupKuladoBaseClient(kuladoBaseClient, opts)
+    if err != nil {
+        return nil, err
+    }
+
+    return client, nil
+}
